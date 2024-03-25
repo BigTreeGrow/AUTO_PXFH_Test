@@ -676,11 +676,11 @@ namespace Purification
 
 #region 纯化系统
 
-        { SiemensNote.PurifyCleanTime, "" },
-        { SiemensNote.PurifyCleanResidueTime, "" },
-        { SiemensNote.PurifyPressure, "" },
-        { SiemensNote.PurifyUpPressure, "" },
-        { SiemensNote.PurifyDownPressure, "" },
+        { SiemensNote.PurifyCleanTime, "AIW64" },
+        { SiemensNote.PurifyCleanResidueTime, "AIW64" },
+        { SiemensNote.PurifyPressure, "AIW64" },
+        { SiemensNote.PurifyUpPressure, "AIW64" },
+        { SiemensNote.PurifyDownPressure, "AIW64" },
         { SiemensNote.PurifyDewpoint, "" },
         { SiemensNote.PurifyUpDewpoint, "" },
         { SiemensNote.PurifyDownDewpoint, "" },
