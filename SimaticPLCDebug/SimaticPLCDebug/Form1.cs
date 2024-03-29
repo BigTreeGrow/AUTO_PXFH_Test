@@ -174,7 +174,7 @@ namespace SimaticPLCDebug
                 float ExchangeBoxPressure = purify.Read<float>(SiemensNote.ExchangeBoxPressure);
                 EBPressure.Text = ExchangeBoxPressure.ToString();
 
-                int ExchangeBoxVacuum = purify.Read<int>(SiemensNote.ExchangeBoxVacuum);
+                float ExchangeBoxVacuum = purify.Read<float>(SiemensNote.ExchangeBoxVacuum);
                 EBVacuum.Text = ExchangeBoxVacuum.ToString();
 
 
@@ -201,13 +201,13 @@ namespace SimaticPLCDebug
                 float ExchangeBoxPFDownPressure = purify.Read<float>(SiemensNote.ExchangeBoxPFDownPressure);
                 EBPFDownPressure.Text = ExchangeBoxPFDownPressure.ToString();
 
-                float ExchangeBoxPFnum = purify.Read<float>(SiemensNote.ExchangeBoxPFnum);
+                short ExchangeBoxPFnum = purify.Read<short>(SiemensNote.ExchangeBoxPFnum);
                 EBPFnum.Text = ExchangeBoxPFnum.ToString();
 
-                float ExchangeBoxPFCompletednum = purify.Read<float>(SiemensNote.ExchangeBoxPFCompletednum);
+                short ExchangeBoxPFCompletednum = purify.Read<short>(SiemensNote.ExchangeBoxPFCompletednum);
                 EBPFCompletednum.Text = ExchangeBoxPFCompletednum.ToString();
 
-                float ExchangeBoxPFinterval = purify.Read<float>(SiemensNote.ExchangeBoxPFinterval);
+                short ExchangeBoxPFinterval = purify.Read<short>(SiemensNote.ExchangeBoxPFinterval);
                 EBPFinterval.Text = ExchangeBoxPFinterval.ToString();
 
                 #endregion
@@ -488,7 +488,15 @@ namespace SimaticPLCDebug
         {
             if (FunctionalEnable && purify.IsConnect())
             {
-                purify.Write<bool>(SiemensNote.BakeOvenExhaust, BOExhaust.Checked);
+                if (BOExhaust.Checked)
+                {
+                    purify.Write<bool>(SiemensNote.BakeOvenExhaust, BOExhaust.Checked);
+                }
+                else
+                {
+                    purify.Write<bool>(SiemensNote.BakeOvenExhaust, BOExhaust.Checked);
+                }
+                
             }
         }
 
@@ -776,9 +784,11 @@ namespace SimaticPLCDebug
                 if (EBOuterdoorOpen.Checked)
                 {
                     purify.Write<bool>(SiemensNote.ExchangeBoxOuterdoorOpen, true);
+                    purify.Write<bool>(SiemensNote.ExchangeBoxOuterdoorStop, false);
                 }
                 else
                 {
+                    purify.Write<bool>(SiemensNote.ExchangeBoxOuterdoorOpen, false);
                     purify.Write<bool>(SiemensNote.ExchangeBoxOuterdoorStop, true);
                 }
             }
@@ -791,9 +801,11 @@ namespace SimaticPLCDebug
                 if (EBOuterdoorClose.Checked)
                 {
                     purify.Write<bool>(SiemensNote.ExchangeBoxOuterdoorClose, true);
+                    purify.Write<bool>(SiemensNote.ExchangeBoxOuterdoorStop, false);
                 }
                 else
                 {
+                    purify.Write<bool>(SiemensNote.ExchangeBoxOuterdoorClose, false);
                     purify.Write<bool>(SiemensNote.ExchangeBoxOuterdoorStop, true);
                 }
             }

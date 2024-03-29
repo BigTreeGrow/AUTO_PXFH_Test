@@ -79,7 +79,9 @@ namespace Purification
                 siemens.Disconnect();
             }
             catch(Exception)
-            {}
+            {
+
+            }
             
         }
 
@@ -377,11 +379,11 @@ namespace Purification
         /// </summary>
         ExchangeBoxBleed,
         /// <summary>
-        /// 交换箱排气阀 bool
+        /// 交换箱排气阀 short
         /// </summary>
         ExchangeBoxExhaust,
         /// <summary>
-        /// 交换箱补气阀 bool
+        /// 交换箱补气阀 short
         /// </summary>
         ExchangeBoxAerate,
         /// <summary>
@@ -589,9 +591,9 @@ namespace Purification
         {
 #region 烘箱
 		
-        { SiemensNote.BakeOvenBleed, "V451.5" },
-        { SiemensNote.BakeOvenExhaust, "V451.7" },
-        { SiemensNote.BakeOvenAerate, "V451.6" },
+        { SiemensNote.BakeOvenBleed, "VW451.5" },
+        { SiemensNote.BakeOvenExhaust, "VW451.7" },
+        { SiemensNote.BakeOvenAerate, "VW451.6" },
         { SiemensNote.BakeOvenInnerdoor1Press, "V451.1" },
         { SiemensNote.BakeOvenOuterdoor1Press, "V450.3" },
         { SiemensNote.BakeOvenInnerdoor1Release, "V451.2" },
@@ -648,15 +650,15 @@ namespace Purification
 
 #region 交换箱
 
-        { SiemensNote.ExchangeBoxBleed, "V452.6" },
-        { SiemensNote.ExchangeBoxExhaust, "V453.0" },
-        { SiemensNote.ExchangeBoxAerate, "V452.7" },
+        { SiemensNote.ExchangeBoxBleed, "VW452.6" },
+        { SiemensNote.ExchangeBoxExhaust, "VW453.0" },
+        { SiemensNote.ExchangeBoxAerate, "VW452.7" },
         { SiemensNote.ExchangeBoxOuterdoorPressSta, "I1.3" },
         { SiemensNote.ExchangeBoxOuterdoorReleaseSta, "I1.2" },
         { SiemensNote.ExchangeBoxOuterdoorElePress, "V452.2" },
         { SiemensNote.ExchangeBoxOuterdoorEleRelease, "V452.3" },
-        { SiemensNote.ExchangeBoxOuterdoorPress, "V452.0" },
-        { SiemensNote.ExchangeBoxOuterdoorRelease, "V452.1" },
+        { SiemensNote.ExchangeBoxOuterdoorPress, "V452.1" },
+        { SiemensNote.ExchangeBoxOuterdoorRelease, "V452.0" },
         { SiemensNote.ExchangeBoxOuterdoorOpen, "V452.4" },
         { SiemensNote.ExchangeBoxOuterdoorClose, "V452.5" },
         { SiemensNote.ExchangeBoxOuterdoorStop, "V454.1" },
@@ -676,24 +678,24 @@ namespace Purification
 
 #region 纯化系统
 
-        { SiemensNote.PurifyCleanTime, "AIW64" },
+        { SiemensNote.PurifyCleanTime, "VW88" },
         { SiemensNote.PurifyCleanResidueTime, "AIW64" },
-        { SiemensNote.PurifyPressure, "AIW64" },
-        { SiemensNote.PurifyUpPressure, "AIW64" },
-        { SiemensNote.PurifyDownPressure, "AIW64" },
-        { SiemensNote.PurifyDewpoint, "" },
+        { SiemensNote.PurifyPressure, "VD2640" },
+        { SiemensNote.PurifyUpPressure, "VD95" },
+        { SiemensNote.PurifyDownPressure, "VD91" },
+        { SiemensNote.PurifyDewpoint, "VD3626" },
         { SiemensNote.PurifyUpDewpoint, "" },
         { SiemensNote.PurifyDownDewpoint, "" },
 
-        { SiemensNote.PurifyRegenerateSta, "" },
-        { SiemensNote.PurifyRegenerateH, "" },
-        { SiemensNote.PurifyRegenerateM, "" },
-        { SiemensNote.PurifyRegenerateS, "" },
+        { SiemensNote.PurifyRegenerateSta, "M15.0" },
+        { SiemensNote.PurifyRegenerateH, "VW64" },
+        { SiemensNote.PurifyRegenerateM, "VW62" },
+        { SiemensNote.PurifyRegenerateS, "VW60" },
 
-        { SiemensNote.PurifyCirculate, "" },
-        { SiemensNote.PurifyRegenerate, "" },
-        { SiemensNote.PurifyClean, "" },
-        { SiemensNote.PurifyPressureConfirm, "" },
+        { SiemensNote.PurifyCirculate, "M01.0" },
+        { SiemensNote.PurifyRegenerate, "M02.0" },
+        { SiemensNote.PurifyClean, "M07.0" },
+        { SiemensNote.PurifyPressureConfirm, "M10.1" },
         { SiemensNote.PurifyDewpointConfirm, "" },
         { SiemensNote.PurifyVacuumpumps, "" },
 
@@ -807,7 +809,25 @@ namespace Purification
                 Type t = typeof(T);
                 if (t == typeof(bool))
                 {
-                    return (T)plc.Read(DataTag);
+                    if (DataTag.StartsWith("V") || DataTag.StartsWith("M"))
+                    {
+                        var mat = Regex.Match(DataTag, @"(\d+)\.(\d+)");
+
+                        int Inte = int.Parse(mat.Groups[1].Value);
+                        int Dec = int.Parse(mat.Groups[2].Value);
+
+                        var Done1 = plc.ReadBytes(DataType.DataBlock, dbInt, Inte, 8);
+                        bool boolvalue = Done1[Dec] != 0;
+                        return (T)Convert.ChangeType("" + boolvalue, typeof(T));
+                    }
+                    else
+                    {
+                        var Done = plc.Read(DataTag);
+                        return (T)plc.Read(DataTag);
+                    }
+
+
+
                 }
                 if (t == typeof(short))
                 {
@@ -851,7 +871,14 @@ namespace Purification
 
                 if (t == typeof(bool))
                 {
-                    plc.Write(DataTag.ToUpper(), Convert.ToBoolean(Data));
+                    //plc.Write(DataTag.ToUpper(), Convert.ToBoolean(Data));
+
+                    var mat = Regex.Match(DataTag, @"(\d+)\.(\d+)");
+
+                    int Inte = int.Parse(mat.Groups[1].Value);
+                    int Dec = int.Parse(mat.Groups[2].Value);
+
+                    plc.WriteBit(DataType.DataBlock, dbInt, Inte,Dec, Convert.ToBoolean(Data));
                 }
                 if (t == typeof(short))
                 {
